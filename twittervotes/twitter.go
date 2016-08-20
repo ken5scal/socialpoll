@@ -7,6 +7,10 @@ import (
 	"log"
 	"github.com/joeshaw/envdecode"
 	"github.com/garyburd/go-oauth/oauth"
+	"sync"
+	"net/http"
+	"net/url"
+	"strconv"
 )
 
 var conn net.Conn
@@ -63,4 +67,28 @@ func setupTwitterAuth() {
 			Secret: ts.ConsumerSecret,
 		},
 	}
+}
+
+// Following authentication, this method creates request and receives response
+var (
+	authSetupOnce sync.Once // Singleton?
+	httpClient *http.Client
+)
+
+func makeRequest(req *http.Request, params url.Values) (*http.Response, error) {
+	authSetupOnce.Do(func() {
+		setupTwitterAuth()
+		httpClient = &http.Client{
+			Transport: &http.Transport{
+				Dial: dial,
+			},
+		}
+	})
+
+	formEnc := params.Encode()
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Length", strconv.Itoa(len(formEnc)))
+	req.Header.Set("Authorization",
+		authClient.AuthorizationHeader(creds, "POST", req.URL, params))
+	return httpClient.Do(req)
 }
