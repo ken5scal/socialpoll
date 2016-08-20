@@ -59,18 +59,25 @@ type tweet struct {
 	Text string
 }
 
+// Read from Twitter
+// votes channel is send-only channel
 func readFromTwitter(votes chan <- string) {
+
+	// load polling options
 	options, err := loadOptions()
 	if err != nil {
 		log.Println("Failed reading polling options", err)
 		return
 	}
 
+	// Prase URL
 	u, err := url.Parse("https://stream.twitter.com/1.1/statuses/filter.json")
 	if err != nil {
 		log.Println("Failed in parsing URL", err)
 		return
 	}
+
+	// Generate query object and Place into Request object
 	query := make(url.Values)
 	query.Set("track", strings.Join(options, ","))
 	req, err := http.NewRequest("POST", u.String(),
@@ -79,12 +86,15 @@ func readFromTwitter(votes chan <- string) {
 		log.Println("Failed generating search request", err)
 		return
 	}
+
+	// Send reuest
 	resp, err := makeRequest(req, query)
 	if err != nil {
 		log.Println("Failed requst, err")
 		return
 	}
 
+	// Decoder Response
 	reader = resp.Body
 	decoder := json.NewDecoder(reader)
 	for {
