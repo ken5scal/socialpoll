@@ -5,11 +5,12 @@ import (
 	"log"
 )
 
-
-// read all polling result and retrieve all polls
-// from $options array in each document using mgo via MongoDB
+/*
+- Read Mongodb to fetch polling options for twitter search
+ */
 var db *mgo.Session // Global object
 
+// Connecting to DB
 func dialdb() error {
 	var err error
 	log.Println("Dialing MongoDB: localhost")
@@ -17,15 +18,16 @@ func dialdb() error {
 	return err
 }
 
+// Closing DB connection
 func closedb() {
 	db.Close()
 	log.Println("Closed db connection")
 }
 
+// Load polling options
 type poll struct {
 	Options []string
 }
-
 func loadOptions() ([]string, error) {
 	var options []string
 	var p poll
@@ -42,7 +44,13 @@ func loadOptions() ([]string, error) {
 }
 
 
-// Use Twitter streaming api to manage session and search for tweet responding to the polls
+/*
+- Read from Twitter
+	- Use Twitter streaming api to manage session
+	- search for tweet responding to the polls
+ */
+
+
 
 // Send search result tweet with selection to NSQ
 
