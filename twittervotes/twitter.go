@@ -4,6 +4,7 @@ import (
 	"net"
 	"time"
 	"io"
+	"log"
 )
 
 var conn net.Conn
@@ -28,5 +29,33 @@ func closeConn() {
 	}
 	if reader != nil {
 		reader.Close()
+	}
+}
+
+// Setup Oauth Object for authenticating request
+var (
+	authClient *oauth.Client
+	creds *oauth.Credentials
+)
+func setupTwitterAuth() {
+	var ts struct {
+		ConsumerKey string `env:"SP_TWITTER_KEY=,required"`
+		ConsumerSecret string `env:"SP_TWITTER_KEY=,required"`
+		AccessToken string `env:"SP_TWITTER_ACCESSTOKEN=,required"`
+		AccessSecret string `env:"SP_TWITTER_ACCESSECRET==,required"`
+	}
+
+	if err := envdecode.Decode(&ts); err != nil {
+		log.Fatalln(err)
+	}
+
+	creds = &oauth.Credentials {
+		Token: ts.AccessToken,
+		Secret: ts.AccessSecret,
+	}
+
+	authClient = &oauth.Client {
+		Token: ts.ConsumerKey,
+		Secret: ts.ConsumerSecret,
 	}
 }
