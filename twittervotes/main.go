@@ -145,6 +145,9 @@ func startTwitterStream(stopchan <- chan struct{}, votes chan <- string) <- chan
 
 
 // Send search result tweet with selection to NSQ
+func publish Votes(){
+
+}
 
 // Periodically fetch inspecing indexes from MongoDB and renew connections to Twitter
 
