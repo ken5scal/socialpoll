@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"time"
+	"github.com/bitly/go-nsq"
 )
 
 /*
@@ -145,8 +146,20 @@ func startTwitterStream(stopchan <- chan struct{}, votes chan <- string) <- chan
 
 
 // Send search result tweet with selection to NSQ
-func publishVotes(){
+func publishVotes(votes <-chan string) <- chan struct{} {
+	stopchan := make(chan struct{}, 1)
+	pub, _ := nsq.NewProducer("localhost:4150", nsq.NewConfig())
+	go func() {
+		for vote := range votes {
+			pub.Publish("votes", []byte(vote)) // Publish polling result
+		}
 
+		log.Println("Publisher: Stopping...")
+		pub.Stop()
+		log.Println("Publisher: Stopped")
+		stopchan <- struct{}{}
+	}()
+	return stopchan
 }
 
 // Periodically fetch inspecing indexes from MongoDB and renew connections to Twitter
