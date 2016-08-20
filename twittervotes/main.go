@@ -29,6 +29,10 @@ type poll struct {
 func loadOptions() ([]string, error) {
 	var options []string
 	var p poll
+
+	// ballots -> DB
+	// polls -> Collection
+	// Find(nil -> search without filtering
 	iter := db.DB("ballots").C("polls").Find(nil).Iter()
 	for iter.Next(&p) {
 		options = append(options, p.Options)
