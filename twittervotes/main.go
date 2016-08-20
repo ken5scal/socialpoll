@@ -8,7 +8,7 @@ import (
 
 // read all polling result and retrieve all polls
 // from $options array in each document using mgo via MongoDB
-var db *mgo.Session
+var db *mgo.Session // Global object
 
 func dialdb() error {
 	var err error
@@ -20,6 +20,21 @@ func dialdb() error {
 func closedb() {
 	db.Close()
 	log.Println("Closed db connection")
+}
+
+type poll struct {
+	Options []string
+}
+
+func loadOptions() ([]string, error) {
+	var options []string
+	var p poll
+	iter := db.DB("ballots").C("polls").Find(nil).Iter()
+	for iter.Next(&p) {
+		options = append(options, p.Options)
+	}
+	iter.Close()
+	return options, iter.Err()
 }
 
 
