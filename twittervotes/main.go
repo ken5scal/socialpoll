@@ -154,7 +154,10 @@ func publishVotes(votes <-chan string) <- chan struct{} {
 			stopchan <- struct{}{}
 		}()
 
+		// periodically check votes channel
+		// if channel is closed, loop will be terminated
 		for vote := range votes {
+			log.Println("Periodical publishing...")
 			pub.Publish("votes", []byte(vote)) // Publish polling result
 		}
 
