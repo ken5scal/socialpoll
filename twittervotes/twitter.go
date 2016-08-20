@@ -5,6 +5,8 @@ import (
 	"time"
 	"io"
 	"log"
+	"github.com/joeshaw/envdecode"
+	"github.com/garyburd/go-oauth/oauth"
 )
 
 var conn net.Conn
@@ -39,6 +41,7 @@ var (
 )
 func setupTwitterAuth() {
 	var ts struct {
+		// back-quoted part is called tag. By using reflection API, one can access to the tag
 		ConsumerKey string `env:"SP_TWITTER_KEY=,required"`
 		ConsumerSecret string `env:"SP_TWITTER_KEY=,required"`
 		AccessToken string `env:"SP_TWITTER_ACCESSTOKEN=,required"`
@@ -55,7 +58,9 @@ func setupTwitterAuth() {
 	}
 
 	authClient = &oauth.Client {
-		Token: ts.ConsumerKey,
-		Secret: ts.ConsumerSecret,
+		Credentials: oauth.Credentials{
+			Token: ts.ConsumerKey,
+			Secret: ts.ConsumerSecret,
+		},
 	}
 }
