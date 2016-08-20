@@ -7,6 +7,7 @@ import (
 	"strings"
 	"net/http"
 	"encoding/json"
+	"time"
 )
 
 /*
@@ -32,6 +33,7 @@ func closedb() {
 type poll struct {
 	Options []string
 }
+
 func loadOptions() ([]string, error) {
 	var options []string
 	var p poll
@@ -59,7 +61,7 @@ type tweet struct {
 	Text string
 }
 
-// Read from Twitter
+// Read(Seach) from Twitter
 // votes channel is send-only channel
 func readFromTwitter(votes chan <- string) {
 
@@ -109,7 +111,36 @@ func readFromTwitter(votes chan <- string) {
 			}
 		}
 	}
+}
 
+// Signal Channel
+// stopchan is receive-only channel
+func startTwitterStream(stopchan <- chan struct{}, votes chan <- string) <- chan struct{} {
+	// buffer size 1: if someone writes to channel, then channel will be blocked from writing until somone reads signal
+	stoppedchan := make(chan struct{}, 1)
+	go func() {
+		defer func() {
+			stoppedchan <- struct{}{}
+		}()
+
+		for {
+			// Wail for messages into the channel(stopchan)
+			select {
+			case <-stopchan:
+			// Kill gorountine
+				log.Println("Finishinq a query to Twitter")
+				return
+			default:
+			// Notify goroutine killed
+				log.Println("Starting a query to Twitter")
+				readFromTwitter(votes) // receives polling options from db and coordinate twitter serching
+				log.Println(" (Waiting)")
+				time.Sleep(10 * time.Second) // Wait and Reconnect
+			}
+
+		}
+	}()
+	return stoppedchan
 }
 
 
