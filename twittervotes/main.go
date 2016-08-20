@@ -150,6 +150,10 @@ func publishVotes(votes <-chan string) <- chan struct{} {
 	stopchan := make(chan struct{}, 1)
 	pub, _ := nsq.NewProducer("localhost:4150", nsq.NewConfig())
 	go func() {
+		defer func() {
+			stopchan <- struct{}{}
+		}()
+
 		for vote := range votes {
 			pub.Publish("votes", []byte(vote)) // Publish polling result
 		}
@@ -157,7 +161,6 @@ func publishVotes(votes <-chan string) <- chan struct{} {
 		log.Println("Publisher: Stopping...")
 		pub.Stop()
 		log.Println("Publisher: Stopped")
-		stopchan <- struct{}{}
 	}()
 	return stopchan
 }
