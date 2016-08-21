@@ -196,5 +196,21 @@ func main() {
 	}
 	defer closedb()
 
-	// When Ctrl + C, then finish program
+	// Restart readFromTwitter evry minute in order to make sure up-to-date polling options from db
+	// by calling startTwitterStream
+	votes := make(chan string) // channel for voting result
+	publisherStoppedChan := publishVotes(votes)
+	twitterStoppedChan := startTwitterStream(stopChan, votes)
+	go func() {
+		for {
+			time.Sleep(1 * time.Minute)
+			closeConn()
+			stoplock.Unlock()
+			break
+		}
+		stoplock.Unlock()
+	}()
+	<- twitterStoppedChan
+	close(votes)
+	<- publisherStoppedChan
 }
