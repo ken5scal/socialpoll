@@ -10,11 +10,14 @@ import (
 	"github.com/bitly/go-nsq"
 	"time"
 	"gopkg.in/mgo.v2/bson"
+	"os/signal"
+	"syscall"
 )
 
 const updateDuration = 1 * time.Second
 
 var fatalErr error
+
 func fatal(e error) {
 	fmt.Println(e)
 	flag.PrintDefaults()
@@ -22,7 +25,8 @@ func fatal(e error) {
 }
 
 func main() {
-	defer func() { // <- defer 1
+	defer func() {
+		// <- defer 1
 		if fatalErr != nil {
 			os.Exit(1)
 		}
@@ -35,7 +39,8 @@ func main() {
 		return // ensures to finish main (call defer funcs)
 	}
 
-	defer func() { // <- defer 2. called before defer 1. LIFO
+	defer func() {
+		// <- defer 2. called before defer 1. LIFO
 		log.Println("Disconnecting db...")
 		db.Close()
 	}()
@@ -54,7 +59,7 @@ func main() {
 	q.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
 		countsLock.Lock()
 		defer countsLock.Unlock()
-		if counts ==nil {
+		if counts == nil {
 			counts = make(map[string]int)
 		}
 		vote := string(m.Body)
@@ -83,7 +88,7 @@ func main() {
 			for option, count := range counts {
 				sel := bson.M{"options": bson.M{"$in": []string{option}}}
 				up := bson.M{"$inc": bson.M{"results." + option: count}}
-				if _, err  := pollData.UpdateAll(sel, up); err != nil {
+				if _, err := pollData.UpdateAll(sel, up); err != nil {
 					log.Println("Failed updating...", err)
 					ok = false
 					continue
@@ -97,4 +102,17 @@ func main() {
 		}
 		updater.Reset(updateDuration)
 	})
+
+	// Handles Ctrl + C
+	termChan := make(chan os.Signal, 1) // channel to catch ctl+c
+	signal.Notify(termChan, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP)
+	for {
+		select {
+		case <-termChan:
+			updater.Stop()
+			q.Stop()
+		case <-q.StopChan:
+			return //finish
+		}
+	}
 }
