@@ -8,6 +8,8 @@ import (
 	"gopkg.in/mgo.v2"
 	"sync"
 	"github.com/bitly/go-nsq"
+	"time"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var fatalErr error
@@ -63,4 +65,34 @@ func main() {
 		fatal(err)
 		return
 	}
+
+	// Pushes result to db periodically
+	log.Println("Waiting for ballots on NSQ...")
+	var updater *time.Timer
+	updater = time.AfterFunc(updateDuration, func() {
+		countsLock.Lock()
+		defer countsLock.Unlock()
+		if len(counts) == 0 {
+			log.Println("No new polls. Skipping db update")
+		} else {
+			log.Println("updating db...")
+			log.Println(counts)
+			ok := true
+			for option, count := range counts {
+				sel := bson.M{"options": bson.M{"$in": []string{option}}}
+				up := bson.M{"$inc": bson.M{"results." + option: count}}
+				if _, err  := pollData.UpdateAll(sel, up); err != nil {
+					log.Println("Failed updating...", err)
+					ok = false
+					continue
+				}
+				counts[option] = 0
+			}
+			if ok {
+				log.Println("Updated")
+				counts = nil
+			}
+		}
+		updater.Reset(updateDuration)
+	})
 }
