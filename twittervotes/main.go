@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"bufio"
 )
 
 /*
@@ -77,6 +78,11 @@ func readFromTwitter(votes chan <- string) {
 		return
 	}
 
+	hashtags := make([]string, len(options))
+	for i := range options {
+		hashtags[i] = "#" + strings.ToLower(options[i])
+	}
+
 	// Prase URL
 	u, err := url.Parse("https://stream.twitter.com/1.1/statuses/filter.json")
 	if err != nil {
@@ -85,10 +91,9 @@ func readFromTwitter(votes chan <- string) {
 	}
 
 	// Generate query object and Place into Request object
-	query := make(url.Values)
-	query.Set("track", strings.Join(options, ","))
-	req, err := http.NewRequest("POST", u.String(),
-		strings.NewReader(query.Encode()))
+	query := url.Values{"track": {strings.Join(hashtags, ",")}}
+	//query.Set("track", strings.Join(options, ","))
+	req, err := http.NewRequest("POST", u.String(), strings.NewReader(query.Encode()))
 	if err != nil {
 		log.Println("Failed generating search request", err)
 		return
@@ -98,6 +103,16 @@ func readFromTwitter(votes chan <- string) {
 	resp, err := makeRequest(req, query)
 	if err != nil {
 		log.Println("Failed requst, err")
+		return
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		// this is a nice way to see what the error actually is:
+		s := bufio.NewScanner(resp.Body)
+		s.Scan()
+		log.Println(s.Text())
+		log.Println(hashtags)
+		log.Println("StatusCode =", resp.StatusCode)
 		return
 	}
 
