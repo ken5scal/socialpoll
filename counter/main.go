@@ -26,7 +26,7 @@ func main() {
 	db, err := mgo.Dial("localhost")
 	if err != nil {
 		fatal(err)
-		return
+		return // ensures to finish main (call defer funcs)
 	}
 
 	defer func() { // <- defer 2. called before defer 1. LIFO
