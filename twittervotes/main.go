@@ -78,11 +78,6 @@ func readFromTwitter(votes chan <- string) {
 		return
 	}
 
-	//hashtags := make([]string, len(options))
-	//for i := range options {
-	//	hashtags[i] = "#" + strings.ToLower(options[i])
-	//}
-
 	// Prase URL
 	u, err := url.Parse("https://stream.twitter.com/1.1/statuses/filter.json")
 	if err != nil {
