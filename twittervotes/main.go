@@ -105,15 +105,19 @@ func readFromTwitter(votes chan <- string) {
 	reader = resp.Body
 	decoder := json.NewDecoder(reader)
 	for {
-		var tweet tweet
-		if err := decoder.Decode(&tweet); err != nil {
-			break
-		}
-		for _, option := range options {
-			if strings.Contains(strings.ToLower(tweet.Text), strings.ToLower(option)) {
-				log.Println("Poll:", option)
-				votes <- option
+		var t tweet
+		if err := decoder.Decode(&t); err == nil {
+			for _, option := range options {
+				if strings.Contains(
+					strings.ToLower(t.Text),
+					strings.ToLower(option),
+				) {
+					log.Println("vote:", option)
+					votes <- option
+				}
 			}
+		} else {
+			break
 		}
 	}
 }
