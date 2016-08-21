@@ -14,6 +14,7 @@ import (
 )
 
 var conn net.Conn
+
 func dial(netw, addr string) (net.Conn, error) {
 	if conn != nil {
 		conn.Close()
@@ -29,6 +30,7 @@ func dial(netw, addr string) (net.Conn, error) {
 
 // Not Only closing connection, but also closing reader which reads response
 var reader io.ReadCloser
+
 func closeConn() {
 	if conn != nil {
 		conn.Close()
@@ -43,27 +45,25 @@ var (
 	authClient *oauth.Client
 	creds *oauth.Credentials
 )
+
 func setupTwitterAuth() {
 	var ts struct {
-		// back-quoted part is called tag. By using reflection API, one can access to the tag
-		ConsumerKey string `env:"SP_TWITTER_KEY,required"`
-		ConsumerSecret string `env:"SP_TWITTER_KEY,required"`
-		AccessToken string `env:"SP_TWITTER_ACCESSTOKEN,required"`
-		AccessSecret string `env:"SP_TWITTER_ACCESSECRET,required"`
+		ConsumerKey    string `env:"SP_TWITTER_KEY,required"`
+		ConsumerSecret string `env:"SP_TWITTER_SECRET,required"`
+		AccessToken    string `env:"SP_TWITTER_ACCESSTOKEN,required"`
+		AccessSecret   string `env:"SP_TWITTER_ACCESSECRET,required"`
 	}
-
 	if err := envdecode.Decode(&ts); err != nil {
 		log.Fatalln(err)
 	}
 
-	creds = &oauth.Credentials {
-		Token: ts.AccessToken,
+	creds = &oauth.Credentials{
+		Token:  ts.AccessToken,
 		Secret: ts.AccessSecret,
 	}
-
-	authClient = &oauth.Client {
+	authClient = &oauth.Client{
 		Credentials: oauth.Credentials{
-			Token: ts.ConsumerKey,
+			Token:  ts.ConsumerKey,
 			Secret: ts.ConsumerSecret,
 		},
 	}
