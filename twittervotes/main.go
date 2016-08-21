@@ -97,13 +97,6 @@ func readFromTwitter(votes chan <- string) {
 		log.Println("creating filter request failed:", err)
 	}
 
-	//query.Set("track", strings.Join(options, ","))
-	//req, err := http.NewRequest("POST", u.String(), strings.NewReader(query.Encode()))
-	//if err != nil {
-	//	log.Println("Failed generating search request", err)
-	//	return
-	//}
-
 	// Send reuest
 	resp, err := makeRequest(req, query)
 	if err != nil {
