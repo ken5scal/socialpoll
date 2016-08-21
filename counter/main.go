@@ -12,6 +12,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+const updateDuration = 1 * time.Second
+
 var fatalErr error
 func fatal(e error) {
 	fmt.Println(e)
