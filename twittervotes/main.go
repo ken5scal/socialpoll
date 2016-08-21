@@ -78,10 +78,10 @@ func readFromTwitter(votes chan <- string) {
 		return
 	}
 
-	hashtags := make([]string, len(options))
-	for i := range options {
-		hashtags[i] = "#" + strings.ToLower(options[i])
-	}
+	//hashtags := make([]string, len(options))
+	//for i := range options {
+	//	hashtags[i] = "#" + strings.ToLower(options[i])
+	//}
 
 	// Prase URL
 	u, err := url.Parse("https://stream.twitter.com/1.1/statuses/filter.json")
@@ -91,7 +91,7 @@ func readFromTwitter(votes chan <- string) {
 	}
 
 	// Generate query object and Place into Request object
-	query := url.Values{"track": {strings.Join(hashtags, ",")}}
+	query := url.Values{"track": {strings.Join(options, ",")}}
 	req, err := http.NewRequest("POST", u.String(), strings.NewReader(query.Encode()))
 	if err != nil {
 		log.Println("creating filter request failed:", err)
@@ -109,7 +109,7 @@ func readFromTwitter(votes chan <- string) {
 		s := bufio.NewScanner(resp.Body)
 		s.Scan()
 		log.Println(s.Text())
-		log.Println(hashtags)
+		log.Println(options)
 		log.Println("StatusCode =", resp.StatusCode)
 		return
 	}
