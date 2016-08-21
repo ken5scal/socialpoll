@@ -203,8 +203,8 @@ func main() {
 	// Restart readFromTwitter evry minute in order to make sure up-to-date polling options from db
 	// by calling startTwitterStream
 	votes := make(chan string) // channel for voting result
-	publisherStoppedChan := publishVotes(votes)
-	twitterStoppedChan := startTwitterStream(stopChan, votes)
+	publisherStopChan := publishVotes(votes)
+	twitterStopChan := startTwitterStream(stopChan, votes)
 	go func() {
 		for {
 			time.Sleep(1 * time.Minute)
@@ -217,7 +217,7 @@ func main() {
 			stoplock.Unlock()
 		}
 	}()
-	<-twitterStoppedChan
+	<-twitterStopChan
 	close(votes)
-	<-publisherStoppedChan
+	<-publisherStopChan
 }
