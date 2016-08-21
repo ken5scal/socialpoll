@@ -46,10 +46,10 @@ var (
 func setupTwitterAuth() {
 	var ts struct {
 		// back-quoted part is called tag. By using reflection API, one can access to the tag
-		ConsumerKey string `env:"SP_TWITTER_KEY=,required"`
-		ConsumerSecret string `env:"SP_TWITTER_KEY=,required"`
-		AccessToken string `env:"SP_TWITTER_ACCESSTOKEN=,required"`
-		AccessSecret string `env:"SP_TWITTER_ACCESSECRET==,required"`
+		ConsumerKey string `env:"SP_TWITTER_KEY,required"`
+		ConsumerSecret string `env:"SP_TWITTER_KEY,required"`
+		AccessToken string `env:"SP_TWITTER_ACCESSTOKEN,required"`
+		AccessSecret string `env:"SP_TWITTER_ACCESSECRET,required"`
 	}
 
 	if err := envdecode.Decode(&ts); err != nil {

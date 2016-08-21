@@ -48,7 +48,7 @@ func loadOptions() ([]string, error) {
 	// Find(nil -> search without filtering
 	iter := db.DB("ballots").C("polls").Find(nil).Iter()
 	for iter.Next(&p) {
-		options = append(options, p.Options)
+		options = append(options, p.Options...)
 	}
 	iter.Close()
 	return options, iter.Err()
