@@ -3,3 +3,6 @@
 db/*
 .db/*
 setup.sh
+nsqd*
+votes*
+twittervotes/twittervotes
