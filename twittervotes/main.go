@@ -9,6 +9,10 @@ import (
 	"encoding/json"
 	"time"
 	"github.com/bitly/go-nsq"
+	"sync"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 /*
@@ -168,7 +172,29 @@ func publishVotes(votes <-chan string) <- chan struct{} {
 	return stopchan
 }
 
-// Periodically fetch inspecing indexes from MongoDB and renew connections to Twitter
+func main() {
+	// Periodically fetch inspecing indexes from MongoDB and renew connections to Twitter
+	// Multiple goroutine can call this method
+	var stoplock sync.Mutex
+	stop := false
+	stopChan := make(chan struct{}, 1)
+	signalChan := make(chan os.Signal, 1)
+	go func() {
+		<-signalChan //attempts reading from channel
+		// following line will be executed only if the signal is eithe sigint or sigterm
+		stoplock.Lock()
+		stop = true
+		stoplock.Unlock()
+		log.Println("Stopping...")
+		stopChan <- struct{}{}
+		closeConn()
+	}()
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM) // sending a signal to signalChan when someone attempts to stop the program
 
-// When Ctrl + C, then finish program
+	if err := dialdb(); err != nil {
+		log.Fatalln("Failed dialing to MongoDB: ", err)
+	}
+	defer closedb()
 
+	// When Ctrl + C, then finish program
+}
