@@ -205,12 +205,15 @@ func main() {
 		for {
 			time.Sleep(1 * time.Minute)
 			closeConn()
+			stoplock.Lock()
+			if stop {
+				stoplock.Unlock()
+				break
+			}
 			stoplock.Unlock()
-			break
 		}
-		stoplock.Unlock()
 	}()
-	<- twitterStoppedChan
+	<-twitterStoppedChan
 	close(votes)
-	<- publisherStoppedChan
+	<-publisherStoppedChan
 }
