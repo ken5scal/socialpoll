@@ -76,7 +76,7 @@ func main() {
 	// Pushes result to db periodically
 	log.Println("Waiting for ballots on NSQ...")
 	var updater *time.Timer
-	updater = time.AfterFunc(updateDuration, func() {
+	updater = time.AfterFunc(updateDuration, func() { //loop inside func
 		countsLock.Lock()
 		defer countsLock.Unlock()
 		if len(counts) == 0 {
