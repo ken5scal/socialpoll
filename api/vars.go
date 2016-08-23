@@ -10,6 +10,7 @@ var (
 	vars map[*http.Request]map[string]interface{}
 )
 
+// Creates a map to hold data for designated request in memory
 func OpenVars(r *http.Request) {
 	varsLock.Lock()
 	if vars == nil {
@@ -19,6 +20,7 @@ func OpenVars(r *http.Request) {
 	varsLock.Unlock()
 }
 
+// Release memory after finishing request
 func CloseVars(r *http.Request) {
 	varsLock.Lock()
 	delete(vars, r)
