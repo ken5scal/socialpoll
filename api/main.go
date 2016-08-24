@@ -26,7 +26,7 @@ func isValidAPIKey(key string) bool {
 func withData(d *mgo.Session, f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		thisDb := d.Copy()
-		defer thisDb.Close()
+		defer thisDb.Close() // Copu db session
 		SetVar(r, "db", thisDb.DB("ballots"))
 		f(w, r)
 	}
