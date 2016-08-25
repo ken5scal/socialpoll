@@ -29,3 +29,7 @@ func respondErr(w http.ResponseWriter, r *http.Request, status int, args ...inte
 		},
 	})
 }
+
+func respondHTTPErr(w http.ResponseWriter, r *http.Request, status int) {
+	respondErr(w, r, status, http.StatusText(status))
+}
