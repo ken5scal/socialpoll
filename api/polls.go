@@ -3,7 +3,6 @@ package main
 import (
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
-	"errors"
 	"gopkg.in/mgo.v2"
 )
 
@@ -66,5 +65,16 @@ func handlePollsPost(w http.ResponseWriter, r *http.Request) {
 	respond(w, r, http.StatusCreated, nil)
 }
 func handlePollsDelete(w http.ResponseWriter, r *http.Request) {
-	respondErr(w, r, http.StatusInternalServerError, errors.New("Not implemented"))
+	db := GetVar(r, "db").(*mgo.Database)
+	c := db.C("polls")
+	p := NewPath(r.URL.Path)
+	if !p.HasID() {
+		respondErr(w, r, http.StatusMethodNotAllowed, "Cannot delete all searching options")
+		return
+	}
+	if err := c.Remove(bson.ObjectIdHex(p.ID)); err != nil {
+		respondErr(w, r, http.StatusInternalServerError, "Failed deleteing searching otpions", err)
+		return
+	}
+	respondErr(w, r, http.StatusOK, nil)
 }
