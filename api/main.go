@@ -3,9 +3,28 @@ package main
 import (
 	"net/http"
 	"gopkg.in/mgo.v2"
+	"flag"
+	"log"
+	"time"
 )
 
 func main() {
+	var (
+		addr = flag.String("addr", ":8080", "Endpoint Address")
+		mongo = flag.String("mongo", "localhost", "MongoDB Address")
+	)
+	flag.Parse()
+	log.Println("Connecting to MongoDB", *mongo)
+	db, err := mgo.Dial(*mongo)
+	if err != nil {
+		log.Fatalln("Failed connecting to MongoDB: ", err)
+	}
+	defer db.Close()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/polls/", withCORS(withVars(withData(db, withAPIKey(handlePolls)))))
+	log.Println("Starting Web server: ", *addr)
+	graceful.Run(*addr, 1*time.Second,mux)
+	log.Println("Stopping...")
 }
 
 // Wrap HandlerFunc
