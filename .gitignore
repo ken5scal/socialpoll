@@ -6,4 +6,4 @@ setup.sh
 nsqd*
 votes*
 twittervotes/twittervotes
-counter/api
+api/api
