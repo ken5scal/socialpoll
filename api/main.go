@@ -22,6 +22,15 @@ func main() {
 	}
 	defer db.Close()
 	mux := http.NewServeMux()
+	// Handle's request with a path starting from /polls/
+	/*
+		1. withCORS returns Handlers inserting Headers
+		2. withVars returns Handlers mapping data in memory assuring to be released
+		3. withData returns Handlers which coppied db session
+		4. withAPIKey checks key
+		5. then handlePolls is called
+		6. All data (db session, data in memory) will be cleaned
+	 */
 	mux.HandleFunc("/polls/", withCORS(withVars(withData(db, withAPIKey(handlePolls)))))
 	log.Println("Starting Web server: ", *addr)
 	graceful.Run(*addr, 1*time.Second,mux)
