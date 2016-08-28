@@ -27,7 +27,7 @@ func handlePolls(w http.ResponseWriter, r *http.Request) {
 	case "OPTIONS":
 		// Handles request to delete. Browser would request a permission to do so(pre-flight request)
 		w.Header().Add("Access-Control-Allow-Methods", "DELETE")
-		respond(w,r,http.StatusOK,nil)
+		respond(w, r, http.StatusOK, nil)
 		return
 	}
 	// handles unknown http method
@@ -77,7 +77,7 @@ func handlePollsDelete(w http.ResponseWriter, r *http.Request) {
 		respondErr(w, r, http.StatusMethodNotAllowed, "Cannot delete all searching options")
 		return
 	}
-	if err := c.Remove(bson.ObjectIdHex(p.ID)); err != nil {
+	if err := c.RemoveId(bson.ObjectIdHex(p.ID)); err != nil {
 		respondErr(w, r, http.StatusInternalServerError, "Failed deleteing searching otpions", err)
 		return
 	}
