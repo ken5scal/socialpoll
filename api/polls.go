@@ -3,6 +3,7 @@ package main
 import (
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"errors"
 )
 
 type poll struct {
@@ -18,7 +19,7 @@ func handlePolls(w http.ResponseWriter, r *http.Request) {
 		handlePollsGet(w,r)
 		return
 	case "POST":
-		handlepollsPost(w,r)
+		handlePollsPost(w,r)
 		return
 	case "DELETE":
 		handlePollsDelete(w,r)
@@ -26,4 +27,14 @@ func handlePolls(w http.ResponseWriter, r *http.Request) {
 	}
 	// handles unknown http method
 	respondHTTPErr(w, r, http.StatusNotFound)
+}
+
+func handlePollsGet(w http.ResponseWriter, r *http.Request) {
+	respondErr(w, r, http.StatusInternalServerError, errors.New("Not implemented"))
+}
+func handlePollsPost(w http.ResponseWriter, r *http.Request) {
+	respondErr(w, r, http.StatusInternalServerError, errors.New("Not implemented"))
+}
+func handlePollsDelete(w http.ResponseWriter, r *http.Request) {
+	respondErr(w, r, http.StatusInternalServerError, errors.New("Not implemented"))
 }
