@@ -4,6 +4,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"errors"
+	"gopkg.in/mgo.v2"
 )
 
 type poll struct {
@@ -30,7 +31,23 @@ func handlePolls(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlePollsGet(w http.ResponseWriter, r *http.Request) {
-	respondErr(w, r, http.StatusInternalServerError, errors.New("Not implemented"))
+	db := GetVar(r, "db").(*mgo.Database)
+	c := db.C("polls")
+	var q *mgo.Query
+	p := NewPath(r.URL.Path)
+	if p.HasID() {
+		// Search for specific id
+		q = c.FindId(bson.ObjectIdHex(p.ID))
+	} else {
+		// Search all
+		q = c.Find(nil)
+	}
+	var result []*poll
+	if err := q.All(&result); err != nil {
+		respondErr(w, r, http.StatusInternalServerError, err)
+		return
+	}
+	respond(w, r, http.StatusOK, &result)
 }
 func handlePollsPost(w http.ResponseWriter, r *http.Request) {
 	respondErr(w, r, http.StatusInternalServerError, errors.New("Not implemented"))
