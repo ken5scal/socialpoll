@@ -81,5 +81,5 @@ func handlePollsDelete(w http.ResponseWriter, r *http.Request) {
 		respondErr(w, r, http.StatusInternalServerError, "Failed deleteing searching otpions", err)
 		return
 	}
-	respondErr(w, r, http.StatusOK, nil)
+	respond(w, r, http.StatusOK, nil)
 }
