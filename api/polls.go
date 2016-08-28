@@ -50,7 +50,20 @@ func handlePollsGet(w http.ResponseWriter, r *http.Request) {
 	respond(w, r, http.StatusOK, &result)
 }
 func handlePollsPost(w http.ResponseWriter, r *http.Request) {
-	respondErr(w, r, http.StatusInternalServerError, errors.New("Not implemented"))
+	db := GetVar(r, "db").(*mgo.Database)
+	c := db.C("polls")
+	var p poll
+	if err := decodeBody(r, &p); err != nil {
+		respondErr(w, r, http.StatusBadRequest, "Cannot read searching options from request", err)
+		return
+	}
+	p.ID = bson.NewObjectId()
+	if err := c.Insert(p); err != nil {
+		respondErr(w, r, http.StatusInternalServerError, "Failed storing searching options", err)
+		return
+	}
+	w.Header().Set("Location", "polls/" + p.ID.Hex())
+	respond(w, r, http.StatusCreated, nil)
 }
 func handlePollsDelete(w http.ResponseWriter, r *http.Request) {
 	respondErr(w, r, http.StatusInternalServerError, errors.New("Not implemented"))
