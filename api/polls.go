@@ -25,6 +25,7 @@ func handlePolls(w http.ResponseWriter, r *http.Request) {
 		handlePollsDelete(w, r)
 		return
 	case "OPTIONS":
+		// Handles request to delete. Browser would request a permission to do so(pre-flight request)
 		w.Header().Add("Access-Control-Allow-Methods", "DELETE")
 		respond(w,r,http.StatusOK,nil)
 		return
