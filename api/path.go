@@ -10,7 +10,10 @@ type Path struct {
 
 func NewPath(p string) *Path {
 	var id string
+	// Remove Head and tail "/"
 	p = strings.Trim(p, PathSeparator)
+
+	// Split by "/"
 	s := strings.Split(p, PathSeparator)
 	if len(s) > 1 {
 		id = s[len(s) - 1]
