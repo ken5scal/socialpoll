@@ -7,22 +7,22 @@ import (
 )
 
 type poll struct {
-	ID bson.ObjectId `bson: "_id" json: "id"`
-	Title string `json: "title"`
-	Options []string `json: "options"`
-	Results map[string]int `json: "results, omitempty"`
+	ID      bson.ObjectId  `bson:"_id" json:"id"`
+	Title   string         `json:"title" bson:"title"`
+	Options []string       `json:"options"`
+	Results map[string]int `json:"results,omitempty"`
 }
 
 func handlePolls(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		handlePollsGet(w,r)
+		handlePollsGet(w, r)
 		return
 	case "POST":
-		handlePollsPost(w,r)
+		handlePollsPost(w, r)
 		return
 	case "DELETE":
-		handlePollsDelete(w,r)
+		handlePollsDelete(w, r)
 		return
 	}
 	// handles unknown http method
