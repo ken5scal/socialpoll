@@ -7,10 +7,11 @@ import (
 )
 
 func main() {
-	var addr = flag.String("addr", ":8081", "Web Address")
+	var addr = flag.String("addr", ":8081", "website address")
 	flag.Parse()
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", http.StripPrefix("/", http.FileServer(http.Dir("public"))))
-	log.Println("Web site address: ", *addr)
+	mux.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("public"))))
+	log.Println("Serving website at:", *addr)
 	http.ListenAndServe(*addr, mux)
 }
+
